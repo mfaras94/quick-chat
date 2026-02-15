@@ -4,9 +4,11 @@ import { generateToken } from "../lib/utils.js";
 
 export const signup = async (req,res) => {
     const {fullName, email, password} = req.body
+    const name = fullName.trim()
+    const normalizedEmail = email.trim().toLowerCase()
 
     try {
-        if(!fullName || !email || !password){
+        if(!name || !normalizedEmail || !password){
             return res.status(400).json({message:"All fields are required"});
         }
 
@@ -16,12 +18,12 @@ export const signup = async (req,res) => {
 
         // check email vaild or not
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        if (!emailRegex.test(normalizedEmail)) {
         return res.status(400).json({ message: "Invalid email format" });
         }
 
 
-        const user =  await User.findOne({email})
+        const user =  await User.findOne({email:normalizedEmail})
         if(user) {
             return res.status(400).json({message:"Email already exists"})
         }
@@ -30,8 +32,8 @@ export const signup = async (req,res) => {
         const hashedPassword = await bcrypt.hash(password,salt)
 
         const newUser = new User({
-            fullName,
-            email,
+            fullName:name,
+            email:normalizedEmail,
             password: hashedPassword
         })
 
