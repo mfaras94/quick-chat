@@ -1,8 +1,7 @@
+import { sendWelcomeEmail } from "../emails/emailHandlers.js";
+import { generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import "dotenv/config"
-import { generateToken } from "../lib/utils.js";
-import { sendWelcomeEmail } from "../emails/emailHandlers.js";
 import { ENV } from "../lib/env.js";
 
 export const signup = async (req, res) => {
@@ -55,12 +54,16 @@ export const signup = async (req, res) => {
         profilePic: newUser.profilePic,
       });
       try {
-          await sendWelcomeEmail(savedUser.fullName, savedUser.email, ENV.CLIENT_URL)
+        await sendWelcomeEmail(
+          savedUser.fullName,
+          savedUser.email,
+          ENV.CLIENT_URL,
+        );
       } catch (error) {
         console.error("Failed to send welcome email:", error);
       }
     } else {
-       res.status(400).json({ message: "Invalid user data" });
+      res.status(400).json({ message: "Invalid user data" });
     }
   } catch (error) {
     console.log("Error in singup controller");
@@ -69,9 +72,50 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  res.send("login endpoint");
+  const { email, password } = req.body;
+  const normalizedEmail = email.trim().toLowerCase();
+
+  try {
+    if (!normalizedEmail || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    generateToken(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profilePic: user.profilePic,
+    });
+  } catch (error) {
+    console.log("Error in login controller");
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
-export const logout = async (req, res) => {
-  res.send("logout endpoint");
+export const logout = async (_, res) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0 });
+    // res.clearCookie("jwt",{
+    //   httpOnly:true,
+    // })
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout controller");
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
