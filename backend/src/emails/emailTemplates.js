@@ -37,7 +37,7 @@ export function createWelcomeEmailTemplate(name, clientURL) {
     </div>
     
     <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
-      <p>© 2025 Messenger. All rights reserved.</p>
+      <p>© 2026 Messenger. All rights reserved.</p>
       <p>
         <a href="#" style="color: #5B86E5; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
         <a href="#" style="color: #5B86E5; text-decoration: none; margin: 0 10px;">Terms of Service</a>
