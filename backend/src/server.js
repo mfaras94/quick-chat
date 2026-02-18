@@ -13,10 +13,11 @@ const __dirname = path.resolve();
 
 const PORT = ENV.PORT || 3000;
 
+app.set("trust proxy", 1);
+
 app.use(express.json());
 app.use(cookieParser());
 
-if (ENV.NODE_ENV === "production") app.set("trust proxy", 1);
 app.use(globalRateLimiter);
 
 app.use("/api/auth", authRoutes);
