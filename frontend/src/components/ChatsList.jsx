@@ -1,26 +1,36 @@
-
+import { useEffect } from "react";
+import { useChatStore } from "../store/useChatStore";
+import UsersLoadingSkeleton from "../components/UsersLoadingSkeleton"
 
 const ChatsList = () => {
+  const { chats, getMyChatPartners ,isUsersLoading} = useChatStore();
+
+  useEffect(() => {
+    getMyChatPartners();
+  }, [getMyChatPartners]);
+
+ if (isUsersLoading) return <UsersLoadingSkeleton />;
+
   return (
     <>
-
-      <div
-
-        className="bg-cyan-500/10 p-4 rounded-lg cursor-pointer hover:bg-cyan-500/20 transition-colors"
-
-      >
-        <div className="flex items-center gap-3">
-          <div className={`avatar`}>
-            <div className="size-12 rounded-full">
-              <img src={"/avatar.png"} alt={"avatar"} />
+      {chats.map((chat) => (
+        <div 
+        key={chat._id}
+        className="bg-emerald-500/10 p-4 rounded-lg cursor-pointer hover:bg-emerald-500/20 transition-colors border border-zinc-700/40">
+          <div className="flex items-center gap-3">
+            <div className={`avatar`}>
+              <div className="size-12 rounded-full">
+                <img src={chat.profilePic || "/avatar.png"} alt={chat.fullName} />
+              </div>
             </div>
+            <h4 className="text-zinc-200 font-medium truncate">
+              {chat.fullName}
+            </h4>
           </div>
-          <h4 className="text-slate-200 font-medium truncate">faras</h4>
         </div>
-      </div>
-
+      ))}
     </>
   );
-}
+};
 
-export default ChatsList
+export default ChatsList;

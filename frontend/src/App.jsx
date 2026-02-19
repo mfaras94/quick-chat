@@ -12,7 +12,7 @@ const App = () => {
 
   useEffect(() => {
     checkAuth()
-  },[])
+  },[checkAuth])
 
   if(isCheckingAuth) return <PageLoader />
   return (

@@ -6,7 +6,7 @@ function MessagesLoadingSkeleton() {
           key={index}
           className={`chat ${index % 2 === 0 ? "chat-start" : "chat-end"} animate-pulse`}
         >
-          <div className={`chat-bubble bg-slate-800 text-white w-32`}></div>
+          <div className={`chat-bubble bg-zinc-800 text-zinc-100 w-32`}></div>
         </div>
       ))}
     </div>
