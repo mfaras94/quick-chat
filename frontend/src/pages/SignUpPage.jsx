@@ -26,20 +26,21 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="w-full flex items-center justify-center p-4 bg-slate-900">
+    <div className="w-full flex items-center justify-center p-4 bg-zinc-900">
       <div className="relative w-full max-w-6xl md:h-[800px] h-[650px]">
         <BorderAnimatedContainer>
           <div className="w-full flex flex-col md:flex-row">
             {/* FORM CLOUMN - LEFT SIDE */}
-            <div className="md:w-1/2 p-8 flex items-center justify-center md:border-r border-slate-600/30">
+            <div className="md:w-1/2 p-8 flex items-center justify-center md:border-r border-zinc-600/30">
               <div className="w-full max-w-md">
                 {/* HEADING TEXT */}
                 <div className="text-center mb-8">
-                  <MessageCircleIcon className="w-12 h-12 mx-auto text-slate-400 mb-4" />
-                  <h2 className="text-2xl font-bold text-slate-200 mb-2">
+                  {/* <MessageCircleIcon className="w-12 h-12 mx-auto text-zinc-400 mb-4" /> */}
+                    <img src="/quickChat-logo.png" alt="logo" className="w-12 h-12 mx-auto mb-2" />
+                  <h2 className="text-2xl font-bold text-zinc-200 mb-2">
                     Create Account
                   </h2>
-                  <p className="text-slate-400">Sign up for a new account</p>
+                  <p className="text-zinc-400">Sign up for a new account</p>
                 </div>
 
                 {/* FORM */}
@@ -117,7 +118,7 @@ const SignUpPage = () => {
             </div>
 
             {/* RIGHT SIDE */}
-            <div className="hidden md:w-1/2 md:flex items-center justify-center p-6 bg-gradient-to-bl from-slate-800/20 to-transparent">
+            <div className="hidden md:w-1/2 md:flex items-center justify-center p-6 bg-gradient-to-bl from-zinc-800/20 to-transparent">
               <div>
                 <img
                   src="/signup.png"
@@ -125,7 +126,7 @@ const SignUpPage = () => {
                   className="w-full h-auto object-contain"
                 />
                 <div className="mt-6 text-center">
-                  <h3 className="text-xl font-medium text-cyan-400">
+                  <h3 className="text-xl font-medium text-emerald-400">
                     Start Your Journey Today
                   </h3>
 
