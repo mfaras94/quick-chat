@@ -1,12 +1,12 @@
 import { useRef , useState } from "react";
-import {LogOutIcon, Volume2Icon,VolumeOffIcon} from "lucide-react"
+import {LogOutIcon, Volume2Icon,VolumeOffIcon,LoaderCircle} from "lucide-react"
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 
 const mouseClickSound = new Audio("/sounds/mouse-click.mp3")
 
 const ProfileHeader = () => {
-    const { logout, authUser, updateProfile } = useAuthStore();
+    const { logout, authUser, updateProfile, isProfileLoading } = useAuthStore();
     const {isSoundEnabled,toggleSound} = useChatStore()
     const [selectedImg, setSelectedImg] = useState(null);
 
@@ -23,6 +23,7 @@ const ProfileHeader = () => {
 
       reader.onloadend = async () => {
         const base64Image = reader.result
+        
         setSelectedImg(base64Image)
         await updateProfile({profilePic:base64Image})
       }
@@ -46,6 +47,11 @@ const ProfileHeader = () => {
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                 <span className="text-white text-xs">Change</span>
               </div>
+              {isProfileLoading && (
+                <div className="absolute inset-0 z-20 bg-black/50 flex items-center justify-center">
+                  <LoaderCircle className="size-6 text-emerald-400 animate-spin" />
+                </div>
+              )}
 
               <input 
               type="file"

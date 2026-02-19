@@ -129,11 +129,21 @@ try {
     if (!profilePic) return res.status(400).json({ message: "Profile pic is required" });
 
     const userId = req.user._id
-    const uploadResponse = await cloudinary.uploader.upload(profilePic)
+    const user = await User.findById(userId)
+
+    if(user?.profilePicId){
+      await cloudinary.uploader.destroy(user.profilePicId)
+    }
+    const uploadResponse = await cloudinary.uploader.upload(profilePic,{
+      folder: "QuickChat/avatars"
+    })
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      {profilePic: uploadResponse.secure_url},
+      {
+        profilePic: uploadResponse.secure_url,
+        profilePicId: uploadResponse.public_id
+      },
       {new:true}
     )
     res.status(200).json(updatedUser);

@@ -6,3 +6,15 @@ export const globalRateLimiter = rateLimit({
     message: { message: "Too many requests, please try again later." },
 
 })
+
+export const authRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { message: "Too many auth attempts, please try again later." },
+})
+
+export const updateProfileRateLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 5,
+    message: { message: "Too many profile update requests, please try again later." },
+})

@@ -1,15 +1,17 @@
 import { useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
 import UsersLoadingSkeleton from "../components/UsersLoadingSkeleton";
+import NoChatsFound from "../components/NoChatsFound";
 
 const ChatsList = () => {
-  const { chats, getMyChatPartners, isUsersLoading } = useChatStore();
+  const { chats, getMyChatPartners, isUsersLoading,setSelectedUser } = useChatStore();
 
   useEffect(() => {
     getMyChatPartners();
   }, [getMyChatPartners]);
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;
+  if(chats.length === 0) return <NoChatsFound/>
 
   return (
     <>
@@ -17,9 +19,10 @@ const ChatsList = () => {
         <div
           key={chat._id}
           className="bg-emerald-500/10 p-4 rounded-lg cursor-pointer hover:bg-emerald-500/20 transition-colors border border-zinc-700/40"
+          onClick={() => setSelectedUser(chat)}
         >
           <div className="flex items-center gap-3">
-            <div className={`avatar`}>
+            <div className={`avatar online`}>
               <div className="size-12 rounded-full">
                 <img
                   src={chat.profilePic || "/avatar.png"}

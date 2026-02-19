@@ -1,8 +1,8 @@
 import { MessageCircleIcon } from "lucide-react";
-
+import { useChatStore } from "../store/useChatStore";
 
 function NoChatsFound() {
-
+const {setActiveTab} = useChatStore()
 
   return (
     <div className="flex flex-col items-center justify-center py-10 text-center space-y-4">
@@ -16,7 +16,7 @@ function NoChatsFound() {
         </p>
       </div>
       <button
-        
+        onClick={() => setActiveTab("contacts")}
         className="px-4 py-2 text-sm text-cyan-400 bg-cyan-500/10 rounded-lg hover:bg-cyan-500/20 transition-colors"
       >
         Find contacts
