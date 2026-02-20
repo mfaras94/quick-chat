@@ -4,7 +4,7 @@ import UsersLoadingSkeleton from "../components/UsersLoadingSkeleton";
 
 const ContactList = () => {
 
-    const { allContacts, getAllContacts, isUsersLoading } = useChatStore();
+    const { allContacts, getAllContacts, isUsersLoading, setSelectedUser } = useChatStore();
 
      useEffect(() => {
     getAllContacts();
@@ -18,7 +18,9 @@ const ContactList = () => {
 
       <div
         key={contact._id}
-      className="bg-emerald-500/10 p-4 rounded-lg cursor-pointer hover:bg-emerald-500/20 transition-colors border border-zinc-700/40">
+      className="bg-emerald-500/10 p-4 rounded-lg cursor-pointer hover:bg-emerald-500/20 transition-colors border border-zinc-700/40"
+        onClick={() =>  setSelectedUser(contact)}
+      >
         <div className="flex items-center gap-3">
           <div className={`avatar online`}>
             <div className="size-12 rounded-full">
