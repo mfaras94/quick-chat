@@ -17,8 +17,8 @@ const LoginPage = () => {
   }
 
   return (
-      <div className="w-full flex items-center justify-center p-4 bg-zinc-900">
-      <div className="relative w-full max-w-6xl md:h-[800px] h-[650px]">
+      <div className="w-full flex items-center justify-center p-1 md:p-4 bg-zinc-900">
+      <div className="relative w-full max-w-full md:max-w-6xl min-h-screen md:min-h-0 md:h-[800px]">
         <BorderAnimatedContainer>
           <div className="w-full flex flex-col md:flex-row">
             {/*  LEFT SIDE */}
