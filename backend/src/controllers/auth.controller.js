@@ -5,13 +5,27 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { ENV } from "../lib/env.js";
 
+const hasHtmlTags = (value = "") => /<[^>]*>/.test(value);
 
 export const signup = async (req, res) => {
-  const { fullName, email, password } = req.body;
-  const name = fullName.trim();
-  const normalizedEmail = email.trim().toLowerCase();
-
   try {
+    const { fullName, email, password } = req.body;
+
+    if (
+      typeof fullName !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string"
+    ) {
+      return res.status(400).json({ message: "Invalid input types" });
+    }
+
+    if (hasHtmlTags(fullName) || hasHtmlTags(email) || hasHtmlTags(password)) {
+      return res.status(400).json({ message: "HTML is not allowed in inputs" });
+    }
+
+    const name = fullName.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+
     if (!name || !normalizedEmail || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -74,10 +88,18 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
-  const normalizedEmail = email.trim().toLowerCase();
-
   try {
+    const { email, password } = req.body;
+    if (typeof email !== "string" || typeof password !== "string") {
+      return res.status(400).json({ message: "Invalid input types" });
+    }
+
+    if (hasHtmlTags(email) || hasHtmlTags(password)) {
+      return res.status(400).json({ message: "HTML is not allowed in inputs" });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
     if (!normalizedEmail || !password) {
       return res
         .status(400)

@@ -60,7 +60,7 @@ export const useChatStore = create((set, get) => ({
 
   sendMessage: async (messageData) => {
     const { selectedUser } = get();
-    const {authUser} = useAuthStore.getState();
+    const { authUser } = useAuthStore.getState();
     const tempId = `temp-${Date.now()}`;
     const optimisticMessage = {
       _id: tempId,
@@ -73,6 +73,7 @@ export const useChatStore = create((set, get) => ({
     };
 
     set((state) => ({ messages: state.messages.concat(optimisticMessage) }));
+    set({ activeTab: "chats" });
 
     try {
       const res = await axiosInstance.post(
@@ -84,6 +85,7 @@ export const useChatStore = create((set, get) => ({
           message._id === tempId ? res.data : message,
         ),
       }));
+ 
     } catch (error) {
       set((state) => ({
         messages: state.messages.filter((message) => message._id !== tempId),
@@ -92,7 +94,24 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
- subscribeToMessages: () => {
+  deleteConversation: async (chatId) => {
+    try {
+      await axiosInstance.delete(`/messages/chats/${chatId}`);
+      set((state) => ({
+        chats: state.chats.filter(
+          (chat) => String(chat._id) !== String(chatId),
+        ),
+        selectedUser: null,
+        messages: [],
+      }));
+      await get().getMyChatPartners();
+      toast.success("Chat Deleted!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  },
+
+  subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
 
@@ -111,8 +130,10 @@ export const useChatStore = create((set, get) => ({
       if (get().isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
 
-        notificationSound.currentTime = 0; 
-        notificationSound.play().catch((e) => console.log("Audio play failed:", e));
+        notificationSound.currentTime = 0;
+        notificationSound
+          .play()
+          .catch((e) => console.log("Audio play failed:", e));
       }
     });
   },
@@ -166,5 +187,4 @@ export const useChatStore = create((set, get) => ({
     if (!socket || !selectedUserId) return;
     socket.emit("typing:stop", { receiverId: selectedUserId });
   },
-  
 }));

@@ -7,7 +7,7 @@ import { ChevronDown, Trash2, BellOff, Archive, MessageCircle } from "lucide-rea
 import toast from "react-hot-toast";
 
 const ChatsList = () => {
-  const { chats, getMyChatPartners, isUsersLoading, setSelectedUser} = useChatStore();
+  const { chats, getMyChatPartners, isUsersLoading, setSelectedUser,deleteConversation} = useChatStore();
    const { onlineUsers } = useAuthStore();
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const ChatsList = () => {
               <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-zinc-800 rounded-box w-44 border border-zinc-700/60">
                 <li>
                   <button
-                
+                   onClick={() => deleteConversation(chat._id)}
                     className="text-red-400"
                   >
                     <Trash2 className="w-4 h-4" />
