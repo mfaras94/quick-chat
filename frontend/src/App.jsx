@@ -24,7 +24,7 @@ const App = () => {
 
   if(isCheckingAuth) return <PageLoader />
   return (
-    <div className="min-h-screen bg-zinc-900 relative flex justify-center items-center p-4 overflow-hidden">
+    <div className="min-h-[100dvh] bg-zinc-900 relative flex justify-center items-center p-0 md:p-4 overflow-hidden">
      {/* DECORATORS - GRID BG & GLOW SHAPES */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]" />
       <div className="absolute top-0 -left-4 size-96 bg-emerald-500 opacity-20 blur-[100px]" />
