@@ -12,6 +12,7 @@ export const useChatStore = create((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled") ?? "true"),
+  isTyping: false,
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -97,6 +98,7 @@ export const useChatStore = create((set, get) => ({
 
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
+    socket.off("newMessage");
 
     socket.on("newMessage", (newMessage) => {
       const isMessageSentFromSelectedUser =
@@ -116,7 +118,53 @@ export const useChatStore = create((set, get) => ({
   },
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
+    if (!socket) return;
     socket.off("newMessage");
+  },
+
+  subscribeToTyping: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    // Avoid duplicate listeners when selecting users repeatedly.
+    socket.off("typing:start");
+    socket.off("typing:stop");
+
+    socket.on("typing:start", ({ senderId }) => {
+      const selectedUserId = get().selectedUser?._id;
+      if (String(senderId) === String(selectedUserId)) {
+        set({ isTyping: true });
+      }
+    });
+
+    socket.on("typing:stop", ({ senderId }) => {
+      const selectedUserId = get().selectedUser?._id;
+      if (String(senderId) === String(selectedUserId)) {
+        set({ isTyping: false });
+      }
+    });
+  },
+
+  unsubscribeFromTyping: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.off("typing:start");
+    socket.off("typing:stop");
+    set({ isTyping: false });
+  },
+
+  emitTypingStart: () => {
+    const socket = useAuthStore.getState().socket;
+    const selectedUserId = get().selectedUser?._id;
+    if (!socket || !selectedUserId) return;
+    socket.emit("typing:start", { receiverId: selectedUserId });
+  },
+
+  emitTypingStop: () => {
+    const socket = useAuthStore.getState().socket;
+    const selectedUserId = get().selectedUser?._id;
+    if (!socket || !selectedUserId) return;
+    socket.emit("typing:stop", { receiverId: selectedUserId });
   },
   
 }));

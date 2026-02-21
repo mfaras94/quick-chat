@@ -1,6 +1,6 @@
 import { ImageIcon, SendIcon, XIcon } from "lucide-react";
 import useKeyboardSounds from "../hooks/useKeyboardSounds";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import toast from "react-hot-toast";
 
@@ -10,13 +10,25 @@ const MessageInput = () => {
   const [imagePreview, setImagePreview] = useState(null);
 
   const fileInputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
-  const { sendMessage, isSoundEnabled } = useChatStore();
+  const { sendMessage, isSoundEnabled, emitTypingStart, emitTypingStop } = useChatStore();
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      emitTypingStop();
+    };
+  }, [emitTypingStop]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
     if (isSoundEnabled) playRandomKeyStrokeSound();
+    // Stop typing indicator once the message is sent.
+    emitTypingStop();
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
     sendMessage({
       text: text.trim(),
       image: imagePreview,
@@ -79,8 +91,21 @@ const MessageInput = () => {
           placeholder="Type your message..."
           value={text}
           onChange={(e) => {
-            setText(e.target.value);
+            const nextText = e.target.value;
+            setText(nextText);
             isSoundEnabled && playRandomKeyStrokeSound();
+
+            // Emit "typing:start" while user types, then debounce "typing:stop".
+            if (nextText.trim()) {
+              emitTypingStart();
+              if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+              typingTimeoutRef.current = setTimeout(() => {
+                emitTypingStop();
+              }, 1200);
+            } else {
+              emitTypingStop();
+              if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+            }
           }}
         />
 

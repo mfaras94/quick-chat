@@ -30,19 +30,21 @@ io.on("connection", (socket) => {
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  // socket.on("typing:start", ({ receiverId }) => {
-  //   const receiverSocketId = getReceiverSocketId(receiverId);
-  //   if (receiverSocketId) {
-  //     io.to(receiverSocketId).emit("typing:start", { senderId: userId });
-  //   }
-  // });
+  // Relay typing state to a specific receiver (WhatsApp-style "typing..." hint).
+  socket.on("typing:start", ({ receiverId }) => {
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("typing:start", { senderId: userId });
+    }
+  });
 
-  // socket.on("typing:stop", ({ receiverId }) => {
-  //   const receiverSocketId = getReceiverSocketId(receiverId);
-  //   if (receiverSocketId) {
-  //     io.to(receiverSocketId).emit("typing:stop", { senderId: userId });
-  //   }
-  // });
+  // Clear typing state when sender stops typing or sends a message.
+  socket.on("typing:stop", ({ receiverId }) => {
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("typing:stop", { senderId: userId });
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.user.fullName);

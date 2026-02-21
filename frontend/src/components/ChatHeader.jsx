@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 
 const ChatHeader = () => {
-  const {selectedUser, setSelectedUser} = useChatStore()
+  const {selectedUser, setSelectedUser, isTyping} = useChatStore()
   const { onlineUsers } = useAuthStore();
     const isOnline = onlineUsers.includes(selectedUser._id);
   useEffect(() => {
@@ -40,7 +40,9 @@ const ChatHeader = () => {
         <h3 className="text-zinc-200 font-medium">
           {selectedUser.fullName}
         </h3>
-        <p className="text-slate-400 text-sm">{isOnline ? "Online" : "Offline"}</p>
+        <p className="text-slate-400 text-sm">
+          {isTyping ? "Typing..." : isOnline ? "Online" : "Offline"}
+        </p>
       </div>
     </div>
 

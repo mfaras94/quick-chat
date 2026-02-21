@@ -7,17 +7,37 @@ import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
 import { useEffect, useRef } from "react";
 
 const ChatContainer = () => {
-  const { getMessagesByUserId, messages, isMessagesLoading, selectedUser,subscribeToMessages,unsubscribeFromMessages } =
+  const {
+    getMessagesByUserId,
+    messages,
+    isMessagesLoading,
+    selectedUser,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+    subscribeToTyping,
+    unsubscribeFromTyping,
+  } =
     useChatStore();
     const messageEndRef = useRef()
   const { authUser } = useAuthStore();
 
   useEffect(() => {
     getMessagesByUserId(selectedUser._id);
-    subscribeToMessages()
+    subscribeToMessages();
+    subscribeToTyping();
 
-    return () => unsubscribeFromMessages()
-  }, [selectedUser,getMessagesByUserId,subscribeToMessages,unsubscribeFromMessages]);
+    return () => {
+      unsubscribeFromMessages();
+      unsubscribeFromTyping();
+    };
+  }, [
+    selectedUser,
+    getMessagesByUserId,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+    subscribeToTyping,
+    unsubscribeFromTyping,
+  ]);
 
   useEffect(() => {
     if(messageEndRef.current){
