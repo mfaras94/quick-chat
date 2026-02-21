@@ -7,6 +7,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import CustomToast from "./components/CustomToast";
 import { useShallow } from "zustand/react/shallow";
+import InstallAppPrompt from "./components/InstallAppPrompt";
 
 const App = () => {
   const {checkAuth, authUser , isCheckingAuth} = useAuthStore(
@@ -36,6 +37,7 @@ const App = () => {
     </Routes>
 
     <CustomToast/>
+    <InstallAppPrompt />
     </div>
   );
 };
