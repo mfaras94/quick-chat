@@ -3,12 +3,28 @@ import {EllipsisVertical, LogOutIcon, Trash2, Volume2Icon,VolumeOffIcon,LoaderCi
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import ConfirmModal from "./ConfirmModal";
+import { useShallow } from "zustand/react/shallow";
 
 const mouseClickSound = new Audio("/sounds/mouse-click.mp3")
 
 const ProfileHeader = () => {
-    const { logout, authUser, updateProfile, isProfileLoading, deleteProfile, isDeletingAccount } = useAuthStore();
-    const {isSoundEnabled,toggleSound} = useChatStore()
+    const { logout, authUser, updateProfile, isProfileLoading, deleteProfile, isDeletingAccount } =
+      useAuthStore(
+        useShallow((state) => ({
+          logout: state.logout,
+          authUser: state.authUser,
+          updateProfile: state.updateProfile,
+          isProfileLoading: state.isProfileLoading,
+          deleteProfile: state.deleteProfile,
+          isDeletingAccount: state.isDeletingAccount,
+        })),
+      );
+    const {isSoundEnabled,toggleSound} = useChatStore(
+      useShallow((state) => ({
+        isSoundEnabled: state.isSoundEnabled,
+        toggleSound: state.toggleSound,
+      })),
+    );
     const [selectedImg, setSelectedImg] = useState(null);
 
 

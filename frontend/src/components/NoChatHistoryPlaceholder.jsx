@@ -2,7 +2,7 @@ import { MessageCircleIcon } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 
 const NoChatHistoryPlaceholder = ({ name }) => {
-  const { setComposerText } = useChatStore();
+  const setComposerText = useChatStore((state) => state.setComposerText);
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-6">

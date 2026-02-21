@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import UsersLoadingSkeleton from "../components/UsersLoadingSkeleton";
 import NoChatsFound from "../components/NoChatsFound";
 import { useAuthStore } from "../store/useAuthStore";
 import { ChevronDown, Trash2 } from "lucide-react";
 import ConfirmModal from "./ConfirmModal";
+import { useShallow } from "zustand/react/shallow";
 
 const ChatsList = () => {
   const {
@@ -14,8 +15,21 @@ const ChatsList = () => {
     setSelectedUser,
     deleteConversation,
     unreadCounts,
-  } = useChatStore();
-   const { onlineUsers } = useAuthStore();
+  } = useChatStore(
+    useShallow((state) => ({
+      chats: state.chats,
+      getMyChatPartners: state.getMyChatPartners,
+      isUsersLoading: state.isUsersLoading,
+      setSelectedUser: state.setSelectedUser,
+      deleteConversation: state.deleteConversation,
+      unreadCounts: state.unreadCounts,
+    })),
+  );
+  const onlineUsers = useAuthStore((state) => state.onlineUsers);
+  const onlineSet = useMemo(
+    () => new Set(onlineUsers.map((id) => String(id))),
+    [onlineUsers],
+  );
   const deleteModalRef = useRef(null);
   const [pendingDeleteChat, setPendingDeleteChat] = useState(null);
 
@@ -51,7 +65,7 @@ const ChatsList = () => {
           <div className="flex items-center gap-3 justify-between">
             <div className="flex items-center gap-3 min-w-0">
               <div className="relative">
-                <div className={`avatar ${onlineUsers.includes(chat._id) ? "online" : "offline"} `}>
+                <div className={`avatar ${onlineSet.has(String(chat._id)) ? "online" : "offline"} `}>
                   <div className="size-12 rounded-full">
                     <img
                       src={chat.profilePic || "/avatar.png"}

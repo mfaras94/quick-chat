@@ -3,6 +3,7 @@ import useKeyboardSounds from "../hooks/useKeyboardSounds";
 import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import toast from "react-hot-toast";
+import { useShallow } from "zustand/react/shallow";
 
 const MessageInput = () => {
   const playRandomKeyStrokeSound = useKeyboardSounds();
@@ -18,7 +19,16 @@ const MessageInput = () => {
     emitTypingStop,
     composerText,
     setComposerText,
-  } = useChatStore();
+  } = useChatStore(
+    useShallow((state) => ({
+      sendMessage: state.sendMessage,
+      isSoundEnabled: state.isSoundEnabled,
+      emitTypingStart: state.emitTypingStart,
+      emitTypingStop: state.emitTypingStop,
+      composerText: state.composerText,
+      setComposerText: state.setComposerText,
+    })),
+  );
 
   useEffect(() => {
     return () => {

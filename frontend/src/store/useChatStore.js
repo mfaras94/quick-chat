@@ -3,6 +3,9 @@ import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore";
 
+const notificationSound =
+  typeof Audio !== "undefined" ? new Audio("/sounds/notification.mp3") : null;
+
 export const useChatStore = create((set, get) => ({
   allContacts: [],
   chats: [],
@@ -195,13 +198,9 @@ export const useChatStore = create((set, get) => ({
       );
       if (!hasChatItem && !socketChatPartner?._id) get().getMyChatPartners();
 
-      if (get().isSoundEnabled) {
-        const notificationSound = new Audio("/sounds/notification.mp3");
-
+      if (get().isSoundEnabled && notificationSound) {
         notificationSound.currentTime = 0;
-        notificationSound
-          .play()
-          .catch((e) => console.log("Audio play failed:", e));
+        notificationSound.play().catch((e) => console.log("Audio play failed:", e));
       }
     });
   },

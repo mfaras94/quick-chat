@@ -5,6 +5,7 @@ import MessageInput from "./MessageInput";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
 import { useEffect, useRef } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 const ChatContainer = () => {
   const {
@@ -14,10 +15,18 @@ const ChatContainer = () => {
     selectedUser,
     subscribeToTyping,
     unsubscribeFromTyping,
-  } =
-    useChatStore();
+  } = useChatStore(
+    useShallow((state) => ({
+      getMessagesByUserId: state.getMessagesByUserId,
+      messages: state.messages,
+      isMessagesLoading: state.isMessagesLoading,
+      selectedUser: state.selectedUser,
+      subscribeToTyping: state.subscribeToTyping,
+      unsubscribeFromTyping: state.unsubscribeFromTyping,
+    })),
+  );
     const messageEndRef = useRef()
-  const { authUser } = useAuthStore();
+  const authUser = useAuthStore((state) => state.authUser);
 
   useEffect(() => {
     getMessagesByUserId(selectedUser._id);
@@ -26,12 +35,7 @@ const ChatContainer = () => {
     return () => {
       unsubscribeFromTyping();
     };
-  }, [
-    selectedUser,
-    getMessagesByUserId,
-    subscribeToTyping,
-    unsubscribeFromTyping,
-  ]);
+  }, [selectedUser?._id, getMessagesByUserId, subscribeToTyping, unsubscribeFromTyping]);
 
   useEffect(() => {
     if(messageEndRef.current){
@@ -40,6 +44,13 @@ const ChatContainer = () => {
   },[messages])
 
   const isOwnMessage = (msg) => String(msg.senderId) === String(authUser._id);
+  const formatMessageTime = (createdAt) =>
+    createdAt
+      ? new Date(createdAt).toLocaleTimeString(["en-PK"], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "";
 
   return (
     <>
@@ -76,10 +87,7 @@ const ChatContainer = () => {
                     </div>
                   )}
                   <p className="text-xs mt-1 opacity-75 flex items-center gap-1">
-                    {new Date(msg.createdAt || Date.now()).toLocaleTimeString(["en-PK"],{
-                      hour:"2-digit",
-                      minute:"2-digit"
-                    })}
+                    {formatMessageTime(msg.createdAt)}
                     {msg.isPending && <span>sending</span>}
                   </p>
                 </div>
