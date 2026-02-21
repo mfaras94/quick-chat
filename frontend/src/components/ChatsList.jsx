@@ -15,6 +15,7 @@ const ChatsList = () => {
     setSelectedUser,
     deleteConversation,
     unreadCounts,
+    selectedUser,
   } = useChatStore(
     useShallow((state) => ({
       chats: state.chats,
@@ -23,6 +24,7 @@ const ChatsList = () => {
       setSelectedUser: state.setSelectedUser,
       deleteConversation: state.deleteConversation,
       unreadCounts: state.unreadCounts,
+      selectedUser: state.selectedUser,
     })),
   );
   const onlineUsers = useAuthStore((state) => state.onlineUsers);
@@ -56,17 +58,23 @@ const ChatsList = () => {
 
   return (
     <>
-      {chats.map((chat) => (
+      {chats.map((chat) => {
+        const isActive = String(selectedUser?._id) === String(chat._id);
+        return (
         <div
           key={chat._id}
-          className="bg-emerald-500/10 p-4 rounded-lg cursor-pointer hover:bg-emerald-500/20 transition-colors border border-zinc-700/40"
+          className={`group rounded-xl cursor-pointer transition-all border ${
+            isActive
+              ? "bg-emerald-500/15 border-emerald-500/40 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.25)]"
+              : "bg-zinc-800/40 border-zinc-700/40 hover:bg-zinc-800/70 hover:border-emerald-500/30"
+          } p-2.5 sm:p-3`}
           onClick={() => setSelectedUser(chat)}
         >
           <div className="flex items-center gap-3 justify-between">
             <div className="flex items-center gap-3 min-w-0">
               <div className="relative">
                 <div className={`avatar ${onlineSet.has(String(chat._id)) ? "online" : "offline"} `}>
-                  <div className="size-12 rounded-full">
+                  <div className="size-10 rounded-full">
                     <img
                       src={chat.profilePic || "/avatar.png"}
                       alt={chat.fullName}
@@ -74,19 +82,19 @@ const ChatsList = () => {
                   </div>
                 </div>
                 {!!unreadCounts[String(chat._id)] && (
-                  <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-emerald-500 text-white text-xs flex items-center justify-center border border-zinc-900 z-10">
+                  <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-emerald-500 text-white text-[10px] font-semibold flex items-center justify-center border border-zinc-900 z-10">
                     {unreadCounts[String(chat._id)]}
                   </span>
                 )}
               </div>
-              <h4 className="text-zinc-200 font-medium truncate">
+              <h4 className="text-zinc-200 text-sm font-medium truncate">
                 {chat.fullName}
               </h4>
              
             </div>
 
             <div className="dropdown dropdown-end" onClick={(e) => e.stopPropagation()}>
-              <button tabIndex={0} className="btn btn-ghost btn-xs text-zinc-400 hover:text-zinc-200">
+              <button tabIndex={0} className="btn btn-ghost btn-xs text-zinc-500 hover:text-zinc-200 group-hover:text-zinc-300">
                 <ChevronDown className="w-4 h-4" />
               </button>
               <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-zinc-800 rounded-box w-44 border border-zinc-700/60">
@@ -103,7 +111,8 @@ const ChatsList = () => {
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
 
       <ConfirmModal
         modalRef={deleteModalRef}
