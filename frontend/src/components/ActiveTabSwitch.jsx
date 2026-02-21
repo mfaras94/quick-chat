@@ -20,7 +20,7 @@ const ActiveTabSwitch = () => {
           activeTab === "contacts" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-400"
         }`}
       >
-        Contacts
+        People
       </button>
     </div>
   );
