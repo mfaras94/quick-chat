@@ -13,6 +13,7 @@ export const useChatStore = create((set, get) => ({
   isMessagesLoading: false,
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled") ?? "true"),
   isTyping: false,
+  unreadCounts: {},
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -20,7 +21,15 @@ export const useChatStore = create((set, get) => ({
   },
 
   setActiveTab: (tab) => set({ activeTab: tab }),
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
+  setSelectedUser: (selectedUser) =>
+    set((state) => {
+      if (!selectedUser?._id) return { selectedUser };
+      const selectedId = String(selectedUser._id);
+      return {
+        selectedUser,
+        unreadCounts: { ...state.unreadCounts, [selectedId]: 0 },
+      };
+    }),
 
   getAllContacts: async () => {
     set({ isUsersLoading: true });
@@ -74,6 +83,22 @@ export const useChatStore = create((set, get) => ({
 
     set((state) => ({ messages: state.messages.concat(optimisticMessage) }));
     set({ activeTab: "chats" });
+    set((state) => {
+      const nextChats = [...state.chats];
+      const currentId = String(selectedUser._id);
+      const existingIndex = nextChats.findIndex(
+        (chat) => String(chat._id) === currentId,
+      );
+
+      if (existingIndex > 0) {
+        const [moved] = nextChats.splice(existingIndex, 1);
+        nextChats.unshift(moved);
+      } else if (existingIndex === -1 && selectedUser) {
+        nextChats.unshift(selectedUser);
+      }
+
+      return { chats: nextChats };
+    });
 
     try {
       const res = await axiosInstance.post(
@@ -103,6 +128,7 @@ export const useChatStore = create((set, get) => ({
         ),
         selectedUser: null,
         messages: [],
+        unreadCounts: { ...state.unreadCounts, [String(chatId)]: 0 },
       }));
       await get().getMyChatPartners();
       toast.success("Chat Deleted!");
@@ -112,20 +138,54 @@ export const useChatStore = create((set, get) => ({
   },
 
   subscribeToMessages: () => {
-    const { selectedUser } = get();
-    if (!selectedUser) return;
-
     const socket = useAuthStore.getState().socket;
+    const authUserId = useAuthStore.getState().authUser?._id;
     if (!socket) return;
     socket.off("newMessage");
 
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser =
-        String(newMessage.senderId) === String(selectedUser._id);
-      if (!isMessageSentFromSelectedUser) return;
+      const senderId = String(newMessage.senderId);
+      const receiverId = String(newMessage.receiverId);
+      const partnerId =
+        String(authUserId) === senderId ? receiverId : senderId;
 
-      const currentMessages = get().messages;
-      set({ messages: [...currentMessages, newMessage] });
+      set((state) => {
+        const nextChats = [...state.chats];
+        const existingIndex = nextChats.findIndex(
+          (chat) => String(chat._id) === partnerId,
+        );
+
+        if (existingIndex > 0) {
+          const [moved] = nextChats.splice(existingIndex, 1);
+          nextChats.unshift(moved);
+        } else if (existingIndex === -1) {
+          const candidate = state.allContacts.find(
+            (contact) => String(contact._id) === partnerId,
+          );
+          if (candidate) nextChats.unshift(candidate);
+        }
+
+        const isFromOpenChat =
+          String(state.selectedUser?._id) === senderId;
+
+        return {
+          chats: nextChats,
+          unreadCounts: !isFromOpenChat
+            ? {
+                ...state.unreadCounts,
+                [partnerId]: (state.unreadCounts[partnerId] || 0) + 1,
+              }
+            : state.unreadCounts,
+          messages: isFromOpenChat
+            ? [...state.messages, newMessage]
+            : state.messages,
+        };
+      });
+
+      const hasChatItem = get().chats.some(
+        (chat) => String(chat._id) === partnerId,
+      );
+      if (!hasChatItem) get().getMyChatPartners();
 
       if (get().isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");

@@ -3,11 +3,17 @@ import { useChatStore } from "../store/useChatStore";
 import UsersLoadingSkeleton from "../components/UsersLoadingSkeleton";
 import NoChatsFound from "../components/NoChatsFound";
 import { useAuthStore } from "../store/useAuthStore";
-import { ChevronDown, Trash2, BellOff, Archive, MessageCircle } from "lucide-react";
-import toast from "react-hot-toast";
+import { ChevronDown, Trash2 } from "lucide-react";
 
 const ChatsList = () => {
-  const { chats, getMyChatPartners, isUsersLoading, setSelectedUser,deleteConversation} = useChatStore();
+  const {
+    chats,
+    getMyChatPartners,
+    isUsersLoading,
+    setSelectedUser,
+    deleteConversation,
+    unreadCounts,
+  } = useChatStore();
    const { onlineUsers } = useAuthStore();
 
   useEffect(() => {
@@ -27,17 +33,25 @@ const ChatsList = () => {
         >
           <div className="flex items-center gap-3 justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              <div className={`avatar ${onlineUsers.includes(chat._id) ? "online" : "offline"} `}>
-                <div className="size-12 rounded-full">
-                  <img
-                    src={chat.profilePic || "/avatar.png"}
-                    alt={chat.fullName}
-                  />
+              <div className="relative">
+                <div className={`avatar ${onlineUsers.includes(chat._id) ? "online" : "offline"} `}>
+                  <div className="size-12 rounded-full">
+                    <img
+                      src={chat.profilePic || "/avatar.png"}
+                      alt={chat.fullName}
+                    />
+                  </div>
                 </div>
+                {!!unreadCounts[String(chat._id)] && (
+                  <span className="absolute -top-1 -left-1 min-w-5 h-5 px-1 rounded-full bg-emerald-500 text-white text-xs flex items-center justify-center border border-zinc-900 z-10">
+                    {unreadCounts[String(chat._id)]}
+                  </span>
+                )}
               </div>
               <h4 className="text-zinc-200 font-medium truncate">
                 {chat.fullName}
               </h4>
+             
             </div>
 
             <div className="dropdown dropdown-end" onClick={(e) => e.stopPropagation()}>

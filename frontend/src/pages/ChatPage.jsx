@@ -6,10 +6,17 @@ import ContactList from "../components/ContactList"
 import ChatContainer from "../components/ChatContainer"
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder"
 import {useChatStore} from "../store/useChatStore"
+import { useEffect } from "react"
 
 
 const ChatPage = () => {
-  const {activeTab,selectedUser} = useChatStore()
+  const { activeTab, selectedUser, subscribeToMessages, unsubscribeFromMessages } = useChatStore()
+
+  useEffect(() => {
+    subscribeToMessages();
+    return () => unsubscribeFromMessages();
+  }, [subscribeToMessages, unsubscribeFromMessages]);
+
    return (
     <div className="relative w-full max-w-6xl h-[800px]">
       <BorderAnimatedContainer>

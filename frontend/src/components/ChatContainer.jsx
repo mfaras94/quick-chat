@@ -12,8 +12,6 @@ const ChatContainer = () => {
     messages,
     isMessagesLoading,
     selectedUser,
-    subscribeToMessages,
-    unsubscribeFromMessages,
     subscribeToTyping,
     unsubscribeFromTyping,
   } =
@@ -23,18 +21,14 @@ const ChatContainer = () => {
 
   useEffect(() => {
     getMessagesByUserId(selectedUser._id);
-    subscribeToMessages();
     subscribeToTyping();
 
     return () => {
-      unsubscribeFromMessages();
       unsubscribeFromTyping();
     };
   }, [
     selectedUser,
     getMessagesByUserId,
-    subscribeToMessages,
-    unsubscribeFromMessages,
     subscribeToTyping,
     unsubscribeFromTyping,
   ]);
