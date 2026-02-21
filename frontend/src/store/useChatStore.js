@@ -5,6 +5,8 @@ import { useAuthStore } from "./useAuthStore";
 
 const notificationSound =
   typeof Audio !== "undefined" ? new Audio("/sounds/notification.mp3") : null;
+const normalizeEntityId = (entity) =>
+  entity && entity._id ? { ...entity, _id: String(entity._id) } : entity;
 
 export const useChatStore = create((set, get) => ({
   allContacts: [],
@@ -28,10 +30,11 @@ export const useChatStore = create((set, get) => ({
   setComposerText: (composerText) => set({ composerText }),
   setSelectedUser: (selectedUser) =>
     set((state) => {
-      if (!selectedUser?._id) return { selectedUser };
-      const selectedId = String(selectedUser._id);
+      const normalizedSelectedUser = normalizeEntityId(selectedUser);
+      if (!normalizedSelectedUser?._id) return { selectedUser: normalizedSelectedUser };
+      const selectedId = String(normalizedSelectedUser._id);
       return {
-        selectedUser,
+        selectedUser: normalizedSelectedUser,
         composerText: "",
         unreadCounts: { ...state.unreadCounts, [selectedId]: 0 },
       };
@@ -41,7 +44,7 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/contacts");
-      set({ allContacts: res.data });
+      set({ allContacts: res.data.map(normalizeEntityId) });
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -53,7 +56,7 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/chats");
-      set({ chats: res.data });
+      set({ chats: res.data.map(normalizeEntityId) });
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -100,7 +103,7 @@ export const useChatStore = create((set, get) => ({
         const [moved] = nextChats.splice(existingIndex, 1);
         nextChats.unshift(moved);
       } else if (existingIndex === -1 && selectedUser) {
-        nextChats.unshift(selectedUser);
+        nextChats.unshift(normalizeEntityId(selectedUser));
       }
 
       return { chats: nextChats };
@@ -152,9 +155,11 @@ export const useChatStore = create((set, get) => ({
     socket.on("newMessage", (newMessage) => {
       const senderId = String(newMessage.senderId);
       const receiverId = String(newMessage.receiverId);
+      const meId = String(authUserId);
+      const isIncoming = senderId !== meId;
       const partnerId =
-        String(authUserId) === senderId ? receiverId : senderId;
-      const socketChatPartner = newMessage.chatPartner;
+        meId === senderId ? receiverId : senderId;
+      const socketChatPartner = normalizeEntityId(newMessage.chatPartner);
 
       set((state) => {
         const nextChats = [...state.chats];
@@ -170,7 +175,7 @@ export const useChatStore = create((set, get) => ({
             (contact) => String(contact._id) === partnerId,
           );
           if (candidate) {
-            nextChats.unshift(candidate);
+            nextChats.unshift(normalizeEntityId(candidate));
           } else if (socketChatPartner?._id) {
             nextChats.unshift(socketChatPartner);
           }
@@ -181,7 +186,7 @@ export const useChatStore = create((set, get) => ({
 
         return {
           chats: nextChats,
-          unreadCounts: !isFromOpenChat
+          unreadCounts: isIncoming && !isFromOpenChat
             ? {
                 ...state.unreadCounts,
                 [partnerId]: (state.unreadCounts[partnerId] || 0) + 1,
