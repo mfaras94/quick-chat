@@ -17,7 +17,6 @@ const io = new Server(server, {
 // apply  middleware to all socket connections
 io.use(socketAuthMiddleware);
 
-
 const userSocketMap = {};
 
 export const getReceiverSocketId = (userId) => userSocketMap[userId];
@@ -30,7 +29,6 @@ io.on("connection", (socket) => {
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  // Relay typing state to a specific receiver (WhatsApp-style "typing..." hint).
   socket.on("typing:start", ({ receiverId }) => {
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
@@ -38,7 +36,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Clear typing state when sender stops typing or sends a message.
   socket.on("typing:stop", ({ receiverId }) => {
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
@@ -54,10 +51,6 @@ io.on("connection", (socket) => {
     }
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
-
-
-
-
 });
 
 export { io, app, server };

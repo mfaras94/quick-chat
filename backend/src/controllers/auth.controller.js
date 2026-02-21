@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { ENV } from "../lib/env.js";
 
+
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
   const name = fullName.trim();
@@ -146,6 +147,8 @@ try {
       },
       {new:true}
     )
+
+
     res.status(200).json(updatedUser);
 } catch (error) {
    console.log("Error in update profile:", error);
