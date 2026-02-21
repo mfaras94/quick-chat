@@ -66,9 +66,9 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="p-4 border-t border-zinc-700/50">
+    <div className="w-full p-3 sm:p-4 border-t border-zinc-700/50">
     {imagePreview && (
-        <div className="max-w-3xl mx-auto mb-3 flex items-center">
+        <div className="w-full max-w-3xl mx-auto mb-3 flex items-center">
           <div className="relative">
             <img
               src={imagePreview}
@@ -89,11 +89,11 @@ const MessageInput = () => {
 
       <form
         onSubmit={handleSendMessage}
-        className="max-w-3xl mx-auto flex space-x-4"
+        className="w-full max-w-3xl mx-auto flex items-center gap-2 sm:gap-3 min-w-0"
       >
         <input
           type="text"
-          className="flex-1 bg-zinc-800/50 border border-zinc-700/50 rounded-lg py-2 px-4 text-zinc-200 placeholder-zinc-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+          className="flex-1 min-w-0 bg-zinc-800/50 border border-zinc-700/50 rounded-lg py-2 px-3 sm:px-4 text-sm sm:text-base text-zinc-200 placeholder-zinc-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
           placeholder="Type your message..."
           value={composerText}
           onChange={(e) => {
@@ -125,7 +125,7 @@ const MessageInput = () => {
         <button
          type="button"
           onClick={() => fileInputRef.current?.click()}
-            className={`bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 hover:text-zinc-200 rounded-lg px-4 transition-colors ${
+            className={`shrink-0 bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 hover:text-zinc-200 rounded-lg px-3 sm:px-4 py-2 transition-colors ${
   imagePreview ? "text-emerald-400 border-emerald-500/40 bg-emerald-500/10" : ""
 }`}>
           <ImageIcon className="w-5 h-5" />
@@ -133,7 +133,7 @@ const MessageInput = () => {
         <button
           type="submit"
             disabled={!composerText.trim() && !imagePreview}
-          className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg px-4 py-2 font-medium hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="shrink-0 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg px-3 sm:px-4 py-2 font-medium hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SendIcon className="w-5 h-5" />
         </button>
