@@ -66,8 +66,10 @@ export const sendMessage = async (req, res) => {
     if (senderId.equals(receiverId)) {
       return res.status(400).json({ message: "Cannot send messages to yourself." });
     }
-    const receiverExists = await User.exists({ _id: receiverId });
-    if (!receiverExists) {
+    const receiverUser = await User.findById(receiverId)
+      .select("_id fullName profilePic")
+      .lean();
+    if (!receiverUser) {
       return res.status(404).json({ message: "Receiver not found." });
     }
     let imageURL;
@@ -91,7 +93,14 @@ export const sendMessage = async (req, res) => {
  await newMessage.save();
     const receiverSocketId = getReceiverSocketId(receiverId);
         if (receiverSocketId) {
-          io.to(receiverSocketId).emit("newMessage", newMessage);
+          io.to(receiverSocketId).emit("newMessage", {
+            ...newMessage.toObject(),
+            chatPartner: {
+              _id: req.user._id,
+              fullName: req.user.fullName,
+              profilePic: req.user.profilePic,
+            },
+          });
         }
 
     res.status(201).json(newMessage);

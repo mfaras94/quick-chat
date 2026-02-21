@@ -151,6 +151,7 @@ export const useChatStore = create((set, get) => ({
       const receiverId = String(newMessage.receiverId);
       const partnerId =
         String(authUserId) === senderId ? receiverId : senderId;
+      const socketChatPartner = newMessage.chatPartner;
 
       set((state) => {
         const nextChats = [...state.chats];
@@ -165,7 +166,11 @@ export const useChatStore = create((set, get) => ({
           const candidate = state.allContacts.find(
             (contact) => String(contact._id) === partnerId,
           );
-          if (candidate) nextChats.unshift(candidate);
+          if (candidate) {
+            nextChats.unshift(candidate);
+          } else if (socketChatPartner?._id) {
+            nextChats.unshift(socketChatPartner);
+          }
         }
 
         const isFromOpenChat =
@@ -188,7 +193,7 @@ export const useChatStore = create((set, get) => ({
       const hasChatItem = get().chats.some(
         (chat) => String(chat._id) === partnerId,
       );
-      if (!hasChatItem) get().getMyChatPartners();
+      if (!hasChatItem && !socketChatPartner?._id) get().getMyChatPartners();
 
       if (get().isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");

@@ -20,8 +20,10 @@ const ChatsList = () => {
   const [pendingDeleteChat, setPendingDeleteChat] = useState(null);
 
   useEffect(() => {
-    getMyChatPartners();
-  }, [getMyChatPartners]);
+    if (chats.length === 0) {
+      getMyChatPartners();
+    }
+  }, [getMyChatPartners, chats.length]);
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;
   if(chats.length === 0) return <NoChatsFound/>
