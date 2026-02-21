@@ -6,9 +6,16 @@ import PageLoader from "./components/PageLoader";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import CustomToast from "./components/CustomToast";
+import { useShallow } from "zustand/react/shallow";
 
 const App = () => {
-  const {checkAuth, authUser , isCheckingAuth} = useAuthStore()
+  const {checkAuth, authUser , isCheckingAuth} = useAuthStore(
+    useShallow((state) => ({
+      checkAuth: state.checkAuth,
+      authUser: state.authUser,
+      isCheckingAuth: state.isCheckingAuth,
+    })),
+  );
 
   useEffect(() => {
     checkAuth()

@@ -7,10 +7,19 @@ import ChatContainer from "../components/ChatContainer"
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder"
 import {useChatStore} from "../store/useChatStore"
 import { useEffect } from "react"
+import { useShallow } from "zustand/react/shallow";
 
 
 const ChatPage = () => {
-  const { activeTab, selectedUser, subscribeToMessages, unsubscribeFromMessages } = useChatStore()
+  const { activeTab, selectedUser, subscribeToMessages, unsubscribeFromMessages } =
+    useChatStore(
+      useShallow((state) => ({
+        activeTab: state.activeTab,
+        selectedUser: state.selectedUser,
+        subscribeToMessages: state.subscribeToMessages,
+        unsubscribeFromMessages: state.unsubscribeFromMessages,
+      })),
+    );
 
   useEffect(() => {
     subscribeToMessages();

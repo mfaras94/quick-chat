@@ -2,11 +2,18 @@ import {XIcon} from "lucide-react"
 import { useChatStore } from "../store/useChatStore";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useShallow } from "zustand/react/shallow";
 
 const ChatHeader = () => {
-  const {selectedUser, setSelectedUser, isTyping} = useChatStore()
-  const { onlineUsers } = useAuthStore();
-    const isOnline = onlineUsers.includes(selectedUser._id);
+  const {selectedUser, setSelectedUser, isTyping} = useChatStore(
+    useShallow((state) => ({
+      selectedUser: state.selectedUser,
+      setSelectedUser: state.setSelectedUser,
+      isTyping: state.isTyping,
+    })),
+  );
+  const onlineUsers = useAuthStore((state) => state.onlineUsers);
+  const isOnline = onlineUsers.includes(selectedUser._id);
   useEffect(() => {
     const handleEscKey = (event) => {
       if(event.key === "Escape"){
