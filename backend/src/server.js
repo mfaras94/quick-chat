@@ -35,6 +35,12 @@ if (ENV.NODE_ENV === "production") {
   });
 }
 
+// Keep-alive and header timeouts should be aligned with reverse proxy timeouts
+// to avoid unexpected EOF/connection reset errors behind CDN/Varnish/Nginx.
+server.keepAliveTimeout = 65_000;
+server.headersTimeout = 66_000;
+server.requestTimeout = 120_000;
+
 server.listen(PORT, () => {
   console.log("server is running on port 3000 ");
   connectDB();
