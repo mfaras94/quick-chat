@@ -11,7 +11,7 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
-  isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")),
+  isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled") ?? "true"),
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -91,5 +91,32 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+ subscribeToMessages: () => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
+
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.on("newMessage", (newMessage) => {
+      const isMessageSentFromSelectedUser =
+        String(newMessage.senderId) === String(selectedUser._id);
+      if (!isMessageSentFromSelectedUser) return;
+
+      const currentMessages = get().messages;
+      set({ messages: [...currentMessages, newMessage] });
+
+      if (get().isSoundEnabled) {
+        const notificationSound = new Audio("/sounds/notification.mp3");
+
+        notificationSound.currentTime = 0; 
+        notificationSound.play().catch((e) => console.log("Audio play failed:", e));
+      }
+    });
+  },
+  unsubscribeFromMessages: () => {
+    const socket = useAuthStore.getState().socket;
+    socket.off("newMessage");
+  },
   
 }));

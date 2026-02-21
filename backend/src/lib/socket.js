@@ -17,9 +17,10 @@ const io = new Server(server, {
 // apply  middleware to all socket connections
 io.use(socketAuthMiddleware);
 
+
 const userSocketMap = {};
 
-// export const getReceiverSocketId = (userId) => userSocketMap[userId];
+export const getReceiverSocketId = (userId) => userSocketMap[userId];
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.user.fullName);
@@ -29,19 +30,19 @@ io.on("connection", (socket) => {
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-//   socket.on("typing:start", ({ receiverId }) => {
-//     const receiverSocketId = getReceiverSocketId(receiverId);
-//     if (receiverSocketId) {
-//       io.to(receiverSocketId).emit("typing:start", { senderId: userId });
-//     }
-//   });
+  // socket.on("typing:start", ({ receiverId }) => {
+  //   const receiverSocketId = getReceiverSocketId(receiverId);
+  //   if (receiverSocketId) {
+  //     io.to(receiverSocketId).emit("typing:start", { senderId: userId });
+  //   }
+  // });
 
-//   socket.on("typing:stop", ({ receiverId }) => {
-//     const receiverSocketId = getReceiverSocketId(receiverId);
-//     if (receiverSocketId) {
-//       io.to(receiverSocketId).emit("typing:stop", { senderId: userId });
-//     }
-//   });
+  // socket.on("typing:stop", ({ receiverId }) => {
+  //   const receiverSocketId = getReceiverSocketId(receiverId);
+  //   if (receiverSocketId) {
+  //     io.to(receiverSocketId).emit("typing:stop", { senderId: userId });
+  //   }
+  // });
 
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.user.fullName);
