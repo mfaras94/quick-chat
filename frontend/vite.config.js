@@ -8,7 +8,7 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: [
-        "favicon.png",
+        "quickChat-logo.png",
         "android/*.png",
         "ios/*.png",
       ],
