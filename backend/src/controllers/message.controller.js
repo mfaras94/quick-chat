@@ -3,6 +3,22 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 
+const extractPublicIdFromCloudinaryUrl = (url = "") => {
+  try {
+    const parsed = new URL(url);
+    const uploadMarker = "/upload/";
+    const uploadIndex = parsed.pathname.indexOf(uploadMarker);
+    if (uploadIndex === -1) return null;
+
+    let publicPath = parsed.pathname.slice(uploadIndex + uploadMarker.length);
+    publicPath = publicPath.replace(/^v\d+\//, "");
+    publicPath = publicPath.replace(/\.[^/.]+$/, "");
+    return decodeURIComponent(publicPath);
+  } catch {
+    return null;
+  }
+};
+
 export const getAllContacts = async (req, res) => {
   try {
     // we need all Users but not  loggedInUser in contacts list so will filter loggedInUser
@@ -55,11 +71,13 @@ export const sendMessage = async (req, res) => {
       return res.status(404).json({ message: "Receiver not found." });
     }
     let imageURL;
+    let imagePublicId;
     if (image) {
       const uploadResponse = await cloudinary.uploader.upload(image,{
       folder: "QuickChat/ChatImages"
     });
       imageURL = uploadResponse.secure_url;
+      imagePublicId = uploadResponse.public_id;
     }
 
     const newMessage = new Message({
@@ -67,6 +85,7 @@ export const sendMessage = async (req, res) => {
       receiverId,
       text,
       image: imageURL,
+      imagePublicId,
     });
 
  await newMessage.save();
@@ -117,12 +136,29 @@ export const deleteConversation = async (req,res) => {
    const myId = req.user._id;
     const { id: userToChatId } = req.params;
 
-    const result = await Message.deleteMany({
+    const filter = {
       $or: [
         { senderId: myId, receiverId: userToChatId },
         { receiverId: myId, senderId:userToChatId  },
       ],
-    });
+    };
+
+    const messagesToDelete = await Message.find(filter).select("image imagePublicId");
+    const publicIds = [
+      ...new Set(
+        messagesToDelete
+          .map((msg) => msg.imagePublicId || extractPublicIdFromCloudinaryUrl(msg.image))
+          .filter(Boolean),
+      ),
+    ];
+
+    if (publicIds.length > 0) {
+      await Promise.allSettled(
+        publicIds.map((publicId) => cloudinary.uploader.destroy(publicId)),
+      );
+    }
+
+    const result = await Message.deleteMany(filter);
 
      res.status(200).json(result);
 
