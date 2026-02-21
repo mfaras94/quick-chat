@@ -13,6 +13,7 @@ export const useAuthStore = create((set, get) => ({
   isLoggingIn: false,
   isLoggingOut: false,
   isProfileLoading: false,
+  isDeletingAccount: false,
   socket: null,
   onlineUsers: [],
 
@@ -82,6 +83,20 @@ export const useAuthStore = create((set, get) => ({
       toast.error(error.response.data.message || "Profile update failed");
     } finally {
       set({ isProfileLoading: false });
+    }
+  },
+
+  deleteProfile: async () => {
+    set({ isDeletingAccount: true });
+    try {
+      await axiosInstance.delete("/auth/delete-profile");
+      get().disconnectSocket();
+      set({ authUser: null });
+      toast.success("Profile deleted successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete profile");
+    } finally {
+      set({ isDeletingAccount: false });
     }
   },
 

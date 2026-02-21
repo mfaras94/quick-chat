@@ -9,6 +9,7 @@ export const useChatStore = create((set, get) => ({
   messages: [],
   activeTab: "chats",
   selectedUser: null,
+  composerText: "",
   isUsersLoading: false,
   isMessagesLoading: false,
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled") ?? "true"),
@@ -21,12 +22,14 @@ export const useChatStore = create((set, get) => ({
   },
 
   setActiveTab: (tab) => set({ activeTab: tab }),
+  setComposerText: (composerText) => set({ composerText }),
   setSelectedUser: (selectedUser) =>
     set((state) => {
       if (!selectedUser?._id) return { selectedUser };
       const selectedId = String(selectedUser._id);
       return {
         selectedUser,
+        composerText: "",
         unreadCounts: { ...state.unreadCounts, [selectedId]: 0 },
       };
     }),

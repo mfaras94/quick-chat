@@ -6,13 +6,19 @@ import toast from "react-hot-toast";
 
 const MessageInput = () => {
   const playRandomKeyStrokeSound = useKeyboardSounds();
-  const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
 
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  const { sendMessage, isSoundEnabled, emitTypingStart, emitTypingStop } = useChatStore();
+  const {
+    sendMessage,
+    isSoundEnabled,
+    emitTypingStart,
+    emitTypingStop,
+    composerText,
+    setComposerText,
+  } = useChatStore();
 
   useEffect(() => {
     return () => {
@@ -23,18 +29,18 @@ const MessageInput = () => {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!text.trim() && !imagePreview) return;
+    if (!composerText.trim() && !imagePreview) return;
     if (isSoundEnabled) playRandomKeyStrokeSound();
     // Stop typing indicator once the message is sent.
     emitTypingStop();
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
     sendMessage({
-      text: text.trim(),
+      text: composerText.trim(),
       image: imagePreview,
     });
 
-    setText("");
+    setComposerText("");
     setImagePreview(null);
 
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -67,11 +73,11 @@ const MessageInput = () => {
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-slate-700"
+              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
             />
             <button
               onClick={removeImage}
-              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-slate-200 hover:bg-slate-700"
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-200 hover:bg-zinc-700"
               type="button"
             >
               <XIcon className="w-4 h-4" />
@@ -89,10 +95,10 @@ const MessageInput = () => {
           type="text"
           className="flex-1 bg-zinc-800/50 border border-zinc-700/50 rounded-lg py-2 px-4 text-zinc-200 placeholder-zinc-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
           placeholder="Type your message..."
-          value={text}
+          value={composerText}
           onChange={(e) => {
             const nextText = e.target.value;
-            setText(nextText);
+            setComposerText(nextText);
             isSoundEnabled && playRandomKeyStrokeSound();
 
             // Emit "typing:start" while user types, then debounce "typing:stop".
@@ -126,7 +132,7 @@ const MessageInput = () => {
         </button>
         <button
           type="submit"
-            disabled={!text.trim() && !imagePreview}
+            disabled={!composerText.trim() && !imagePreview}
           className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg px-4 py-2 font-medium hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SendIcon className="w-5 h-5" />

@@ -40,7 +40,7 @@ const ChatHeader = () => {
         <h3 className="text-zinc-200 font-medium">
           {selectedUser.fullName}
         </h3>
-        <p className="text-slate-400 text-sm">
+        <p className="text-zinc-400 text-sm">
           {isTyping ? "Typing..." : isOnline ? "Online" : "Offline"}
         </p>
       </div>

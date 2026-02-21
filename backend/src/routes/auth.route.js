@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  deleteProfile,
   login,
   logout,
   signup,
@@ -20,6 +21,7 @@ router.post("/logout", authRateLimiter, logout);
 router.use(protectRoute);
 
 router.put("/update-profile", updateProfileRateLimiter, updateProfile);
+router.delete("/delete-profile", updateProfileRateLimiter, deleteProfile);
 router.get("/verify", (req, res) => res.status(200).json(req.user));
 
 export default router;

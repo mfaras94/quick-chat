@@ -2,6 +2,7 @@ import { sendWelcomeEmail } from "../emails/emailHandlers.js";
 import { generateToken } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js"
 import User from "../models/User.js";
+import Message from "../models/Message.js";
 import bcrypt from "bcryptjs";
 import { ENV } from "../lib/env.js";
 
@@ -178,3 +179,30 @@ try {
   
 }  
 }
+
+export const deleteProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.profilePicId) {
+      await cloudinary.uploader.destroy(user.profilePicId);
+    }
+
+    await Message.deleteMany({
+      $or: [{ senderId: userId }, { receiverId: userId }],
+    });
+
+    await User.findByIdAndDelete(userId);
+    res.cookie("jwt", "", { maxAge: 0 });
+
+    res.status(200).json({ message: "Profile deleted successfully" });
+  } catch (error) {
+    console.log("Error in deleteProfile controller:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
