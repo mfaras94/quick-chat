@@ -12,10 +12,6 @@ export default defineConfig({
         "android/*.png",
         "ios/*.png",
       ],
-      devOptions:{
-        enabled:true,
-        type:'module'
-      },
       manifest: {
         id: "/",
         name: "QuickChat",
